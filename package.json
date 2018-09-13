@@ -1,0 +1,25 @@
+{
+  "name": "issue-tracker",
+  "version": "1.0.0",
+  "description": "Allows creation, update, and deletion of tickets for a project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "issues",
+    "issue-tracker",
+    "ticket",
+    "project",
+    "fcc",
+    "freecodecamp"
+  ],
+  "author": "Christopher McCormack https://mackville.net",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "helmet": "^3.13.0",
+    "pug": "^2.0.3"
+  }
+}

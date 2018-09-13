@@ -1,0 +1,128 @@
+html
+    head
+        title= title
+        meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
+        meta(name="author" content="Chris McCormack")
+
+        link(rel="stylesheet" type="text/css" href="./styles/styles.css")
+        link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500")
+
+        link(rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png")
+        link(rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png")
+        link(rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png")
+        link(rel="manifest" href="/images/site.webmanifest")
+        link(rel="mask-icon" href="/images/safari-pinned-tab.svg" color="#5bbad5")
+        link(rel="shortcut icon" href="/images/favicon.ico")
+        meta(name="msapplication-TileColor" content="#da532c")
+        meta(name="msapplication-config" content="/images/browserconfig.xml")
+        meta(name="theme-color" content="#ffffff")
+    body
+        header
+            h1= header
+
+        main
+            section#example_usage
+                span.section-title Example Usage
+                pre /api/issues/{project}
+                pre /api/issues/{project}?open=true&assigned_to=Chris
+            section#example_return
+                span.section-title Example Return
+                pre.
+                    [{
+                        "_id":"5871dda29faedc3491ff93bb",
+                        "issue_title":"Fix error in posting data",
+                        "issue_text":"When we post data it has an error and ...",
+                        "created_on":"2017-01-08T06:35:14.240Z",
+                        "updated_on":"2017-01-08T06:35:14.240Z",
+                        "created_by":"Chris",
+                        "assigned_to":"Jason",
+                        "open":true,
+                        "status_text":"In Dev"
+                    }] 
+            section#try_it
+                span.section-title Try It Yourself!
+                form#new_ticket_form
+                    span.form-title submit new issue
+                    div.input-row
+                        label(for="title_input") Issue Title
+                            span  - Required
+                        input#title_input(type="text" placeholder="Fix error in posting data" name="title" required value="test name")
+                    div.input-row
+                        label(for="text_input") Issue Text
+                            span  - Required
+                        textarea#text_input(rows=3 placeholder="When we post data it has an error and ..." name="text" required) test text
+                    div.input-row
+                        label(for="createdBy_input") Created By
+                            span  - Required
+                        input#createdBy_input(type="text" placeholder="Chris" name="createdBy" required value="test createdBy")
+                    div.input-row
+                        label(for="assignedTo_input") Assigned To
+                            span  - Optional
+                        input#assignedTo_input(type="text" placeholder="Jason" name="assignedTo" required value="test assignedTo")
+                    div.input-row
+                        label(for="statusText_input") Status Text
+                            span  - Optional
+                        input#statusText_input(type="text" placeholder="In Dev" name="statusText" required value="test statusText")
+                    button.submit-btn(type="submit") Add
+                    
+                    div.input-row
+                        pre#try_it_new_output.hidden
+
+                form#update_ticket_form
+                    span.form-title update issue
+                    div.input-row
+                        label(for="id_input") Issue ID
+                            span  - Required
+                        input#id_input(type="text" placeholder="5871dda29faedc3491ff93bb" name="id" required value="5871dda29faedc3491ff93bb")
+                    div.input-row
+                        label(for="title_input") Issue Title
+                            span  - Optional
+                        input#title_input(type="text" placeholder="Fix error in posting data" name="title" value="test name")
+                    div.input-row
+                        label(for="text_input") Issue Text
+                            span  - Optional
+                        textarea#text_input(rows=3 placeholder="When we post data it has an error and ..." name="text") test text
+                    div.input-row
+                        label(for="createdBy_input") Created By
+                            span  - Optional
+                        input#createdBy_input(type="text" placeholder="Chris" name="createdBy" value="test createdBy")
+                    div.input-row
+                        label(for="assignedTo_input") Assigned To
+                            span  - Optional
+                        input#assignedTo_input(type="text" placeholder="Jason" name="assignedTo" value="test assignedTo")
+                    div.input-row
+                        label(for="statusText_input") Status Text
+                            span  - Optional
+                        input#statusText_input(type="text" placeholder="In Dev" name="statusText" value="test statusText")
+                    button.submit-btn(type="submit") Update
+                    
+                    div.input-row
+                        pre#try_it_update_output.hidden
+                
+                form#delete_ticket_form
+                    span.form-title delete issue
+                    div.input-row
+                        label(for="delete_id_input") Issue ID
+                            span  - Required
+                        input#delete_id_input(type="text" placeholder="5871dda29faedc3491ff93bb" name="id" required value="5871dda29faedc3491ff93bb")
+                    button.submit-btn(type="submit") Delete
+                
+                    div.input-row
+                        pre#try_it_delete_output.hidden
+
+script.
+    document.getElementById('new_ticket_form').addEventListener('submit', e => {
+        e.preventDefault()
+        const {title, text, createdBy, assignedTo, statusText} = e.target
+        const output = document.getElementById('try_it_new_output')
+    })
+    document.getElementById('update_ticket_form').addEventListener('submit', e => {
+        e.preventDefault()
+        const {id, title, text, createdBy, assignedTo, statusText} = e.target
+        const output = document.getElementById('try_it_update_output')
+    })
+    document.getElementById('delete_ticket_form').addEventListener('submit', e => {
+        e.preventDefault()
+        const {id} = e.target
+        const output = document.getElementById('try_it_delete_output')
+    })
