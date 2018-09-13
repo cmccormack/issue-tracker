@@ -2,9 +2,21 @@ const router = require("express").Router()
 const path = require("path")
 const { body, validationResult, } = require('express-validator/check')
 const { sanitizeBody, } = require('express-validator/filter')
+const Issue = require('../models/Issue')
 
 
 module.exports = () => {
+
+  ///////////////////////////////////////////////////////////
+  // Utility Endpoints
+  ///////////////////////////////////////////////////////////
+  router.get("/wipeissues", (req, res) => {
+    Issue.deleteMany({}, err => {
+      if (err) return Error(err.message)
+      const message = "Successfully wiped 'issues' collection"
+      res.json({ success: true, message, })
+    })
+  })
 
   const issue_form_validation = [
     body('title')
@@ -55,34 +67,76 @@ module.exports = () => {
     body('id')
       .trim()
       .isLength({ min: 1, })
-      .withMessage('Status Text should be at least 1 characters')
+      .withMessage('Issue ID should be at least 1 character')
       .isAscii()
-      .withMessage('Status Text should include only valid ascii characters'),
+      .withMessage('Issue ID should include only valid ascii characters'),
   ]
 
   ///////////////////////////////////////////////////////////
-  // Do something
+  // Manage Issue Add/Update/Delete
   ///////////////////////////////////////////////////////////
-  router.route('/issues/')
+  router.route('/issues/:project')
+
+    // ** POST ** request
     .post(issue_form_validation, (req, res, next) => {
 
+      // Check validation and exit early if unsuccessful
       const errors = validationResult(req)
-      console.log(errors.array())
+      if (!errors.isEmpty()) {
+        return next(Error(errors.array()[0].msg))
+      }
+
       const { title, text, createdBy, assignedTo, statusText } = req.body
+      const { project } = req.params
 
-      res.json({success: true, ...req.body})
+      const issue = new Issue({
+        project,
+        title,
+        text,
+        createdBy,
+        assignedTo,
+        statusText
+      })
+
+      issue.save(err => {
+        if (err) { return next(Error(err)) }
+
+        console.log('saved!')
+        res.json({success: true, ...req.body, project})
+      })
+
     })
 
-    .put((req, res, next) => {
-      next()
+    // ** PUT ** request
+    .put(issue_form_validation, issue_id_validation, (req, res, next) => {
+
+      // Check validation and exit early if unsuccessful
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        console.log(errors.array())
+        return next(Error(errors.array()[0].msg))
+      }
+
+      res.json({ success: true, ...req.body })
     })
 
+    // ** DELETE ** request
     .delete((req, res, next) => {
+      console.warn('Endpoint not yet built')
       next()
     })
 
+    // ** GET ** request
     .get((req, res, next) => {
-      next()
+
+      const {project} = req.params
+      
+      Issue.find({project})
+      .exec((err, issues) => {
+        if (err) { return Error(err.message) }
+
+        res.json(issues)
+      })
     })
 
   return router
