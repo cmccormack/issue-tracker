@@ -47,6 +47,6 @@ module.exports = (app) => {
   app.use((err, req, res, next) => {
     console.error(err.message)
 
-    res.send(err.message)
+    res.send({success: false, error: err.message})
   })
 }
