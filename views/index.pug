@@ -66,14 +66,14 @@ html
                     button.submit-btn(type="submit") Add
                     
                     div.input-row
-                        pre#try_it_new_output.hidden
+                        pre#try_it_new.output.hidden
 
                 form#update_ticket_form
                     span.form-title update issue
                     div.input-row
                         label(for="id_input") Issue ID
                             span  - Required
-                        input#id_input(type="text" placeholder="5871dda29faedc3491ff93bb" name="id" required value="5871dda29faedc3491ff93bb")
+                        input#id_input(type="text" placeholder="5871dda29faedc3491ff93bb" name="id" /*required*/ value="5871dda29faedc3491ff93bb")
                     div.input-row
                         label(for="title_input") Issue Title
                             span  - Optional
@@ -97,7 +97,7 @@ html
                     button.submit-btn(type="submit") Update
                     
                     div.input-row
-                        pre#try_it_update_output.hidden
+                        pre#try_it_update.output.hidden
                 
                 form#delete_ticket_form
                     span.form-title delete issue
@@ -108,11 +108,22 @@ html
                     button.submit-btn(type="submit") Delete
                 
                     div.input-row
-                        pre#try_it_delete_output.hidden
+                        pre#try_it_delete.output.hidden
 
 script.
+    forms = document.querySelectorAll('form')
+    outputs = document.querySelectorAll('.output')
+    forms.forEach(form => {
+        form.addEventListener('submit', e => {
+            outputs.forEach(output => {
+                output.classList.add('hidden')
+            })
+        })
+    })
+
     document.getElementById('new_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
+        const output = document.getElementById('try_it_new')
         const {title, text, createdBy, assignedTo, statusText} = e.target
         const body = JSON.stringify({
             title: title.value,
@@ -123,7 +134,7 @@ script.
         })
 
         // POST request to add new issue
-        fetch('/api/issues', {
+        fetch('/api/issues/apitest2', {
             method: 'POST',
             headers: {
             "Content-Type": "application/json; charset=utf-8",
@@ -133,17 +144,41 @@ script.
             .then(res => res.json())
             .then(data => {
                 console.log(data)
+                output.textContent = JSON.stringify(data)
+                output.classList.remove('hidden')
             })
-
-        const output = document.getElementById('try_it_new_output')
     })
+
     document.getElementById('update_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
+        const output = document.getElementById('try_it_update')
         const {id, title, text, createdBy, assignedTo, statusText} = e.target
-        const output = document.getElementById('try_it_update_output')
+        const body = JSON.stringify({
+            id: id.value,
+            title: title.value,
+            text: text.textContent,
+            createdBy: createdBy.value,
+            assignedTo: assignedTo.value,
+            statusText: statusText.value
+        })
+
+        // PUT request to update existing issue
+        fetch('/api/issues/apitest', {
+            method: 'PUT',
+            headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            },
+            body,
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                output.textContent = JSON.stringify(data)
+                output.classList.remove('hidden')
+            })
     })
     document.getElementById('delete_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
         const {id} = e.target
-        const output = document.getElementById('try_it_delete_output')
+        const output = document.getElementById('try_it_delete')
     })
