@@ -58,11 +58,11 @@ html
                     div.input-row
                         label(for="assignedTo_input") Assigned To
                             span  - Optional
-                        input#assignedTo_input(type="text" placeholder="Jason" name="assignedTo" required value="test assignedTo")
+                        input#assignedTo_input(type="text" placeholder="Jason" name="assignedTo" value="test assignedTo")
                     div.input-row
                         label(for="statusText_input") Status Text
                             span  - Optional
-                        input#statusText_input(type="text" placeholder="In Dev" name="statusText" required value="test statusText")
+                        input#statusText_input(type="text" placeholder="In Dev" name="statusText" value="test statusText")
                     button.submit-btn(type="submit") Add
                     
                     div.input-row
@@ -114,6 +114,27 @@ script.
     document.getElementById('new_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
         const {title, text, createdBy, assignedTo, statusText} = e.target
+        const body = JSON.stringify({
+            title: title.value,
+            text: text.textContent,
+            createdBy: createdBy.value,
+            assignedTo: assignedTo.value,
+            statusText: statusText.value
+        })
+
+        // POST request to add new issue
+        fetch('/api/issues', {
+            method: 'POST',
+            headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            },
+            body,
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+            })
+
         const output = document.getElementById('try_it_new_output')
     })
     document.getElementById('update_ticket_form').addEventListener('submit', e => {
