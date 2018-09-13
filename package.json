@@ -18,8 +18,12 @@
   "author": "Christopher McCormack https://mackville.net",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "express-validator": "^5.3.0",
     "helmet": "^3.13.0",
+    "mongoose": "^5.2.14",
     "pug": "^2.0.3"
   }
 }
