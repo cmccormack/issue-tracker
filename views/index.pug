@@ -173,7 +173,7 @@ script.
             .then(res => res.json())
             .then(data => {
                 console.log(data)
-                output.textContent = JSON.stringify(data)
+                output.textContent = JSON.stringify(data, null, 2)
                 output.classList.remove('hidden')
             })
     })
