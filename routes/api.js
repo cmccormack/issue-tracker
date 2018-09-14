@@ -3,6 +3,7 @@ const path = require("path")
 const { body, validationResult, } = require('express-validator/check')
 const { sanitizeBody, } = require('express-validator/filter')
 const Issue = require('../models/Issue')
+const ObjectId = require('mongoose').Types.ObjectId
 
 
 module.exports = () => {
@@ -107,18 +108,30 @@ module.exports = () => {
 
     })
 
+
     // ** PUT ** request
-    .put(issue_form_validation, issue_id_validation, (req, res, next) => {
+    .put(issue_id_validation, issue_form_validation, (req, res, next) => {
 
       // Check validation and exit early if unsuccessful
-      const errors = validationResult(req)
-      if (!errors.isEmpty()) {
-        console.log(errors.array())
-        return next(Error(errors.array()[0].msg))
+      const idErrors = validationResult(req).array().filter(error => error.param === 'id')
+      if (idErrors.length > 0) {
+        console.log(idErrors)
+        return next(Error(idErrors[0].msg))
       }
 
-      res.json({ success: true, ...req.body })
+      const update = {...req.body}
+      Object.keys(update).forEach(param => (!update[param] || param === 'id') && delete update[param])
+      console.log(req.body.id)
+      Issue.findByIdAndUpdate(ObjectId(req.body.id), body, {new: true}, (err, issue) => {
+
+        if (err) { return next(Error(err.message))}
+        console.log(issue)
+        res.json({ success: true, ...issue })
+      })
+
+
     })
+
 
     // ** DELETE ** request
     .delete((req, res, next) => {
