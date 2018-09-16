@@ -110,7 +110,7 @@ module.exports = () => {
 
 
     // ** PUT ** request
-    .put(issue_id_validation, issue_form_validation, (req, res, next) => {
+    .put(issue_id_validation, issue_form_validation, async (req, res, next) => {
 
       // Check validation and exit early if unsuccessful
       const idErrors = validationResult(req).array().filter(error => error.param === 'id')
@@ -120,15 +120,14 @@ module.exports = () => {
       }
 
       const update = {...req.body}
+      const id = ObjectId(req.body.id)
+
+      // Strip unchanged properties from body for update
       Object.keys(update).forEach(param => (!update[param] || param === 'id') && delete update[param])
-      console.log(req.body.id)
-      Issue.findByIdAndUpdate(ObjectId(req.body.id), body, {new: true}, (err, issue) => {
 
-        if (err) { return next(Error(err.message))}
-        console.log(issue)
-        res.json({ success: true, ...issue })
-      })
+      const issue = await Issue.findByIdAndUpdate(id, update, {new: true})
 
+      res.json({success: true, issue: issue.toObject()})
 
     })
 
