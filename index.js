@@ -11,6 +11,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 ///////////////////////////////////////////////////////////
 const { dbuser, dbpw, dbhost, dbname } = process.env
 mongoose.Promise = global.Promise
+mongoose.set('useFindAndModify', false)
 mongoose.connect(`mongodb://${dbuser}:${dbpw}@${dbhost}/${dbname}`, { useNewUrlParser: true })
 
 // The connection used by default for every model created using mongoose.model
