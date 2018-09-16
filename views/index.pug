@@ -73,7 +73,7 @@ html
                     div.input-row
                         label(for="id_input") Issue ID
                             span  - Required
-                        input#id_input(type="text" placeholder="5871dda29faedc3491ff93bb" name="id" /*required*/ value="5871dda29faedc3491ff93bb")
+                        input#id_input(type="text" placeholder="5b9c28e7abd4efa3f86d3e40" name="id" /*required*/ value="5871dda29faedc3491ff93bb")
                     div.input-row
                         label(for="title_input") Issue Title
                             span  - Optional
@@ -156,7 +156,7 @@ script.
         const body = JSON.stringify({
             id: id.value,
             title: title.value,
-            text: text.textContent,
+            text: text.value,
             createdBy: createdBy.value,
             assignedTo: assignedTo.value,
             statusText: statusText.value
