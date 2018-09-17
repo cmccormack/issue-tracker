@@ -70,7 +70,10 @@ module.exports = () => {
       .isLength({ min: 1, })
       .withMessage('Issue ID should be at least 1 character')
       .isAscii()
-      .withMessage('Issue ID should include only valid ascii characters'),
+      .withMessage('Issue ID should include only valid ascii characters')
+      .isMongoId()
+      .withMessage('Issue ID must be a valid MongoId'),
+
   ]
 
   ///////////////////////////////////////////////////////////
@@ -103,7 +106,7 @@ module.exports = () => {
         if (err) { return next(Error(err)) }
 
         console.log('saved!')
-        res.json({success: true, ...req.body, project})
+        res.json({...issue.toObject()})
       })
 
     })
@@ -133,9 +136,40 @@ module.exports = () => {
 
 
     // ** DELETE ** request
-    .delete((req, res, next) => {
-      console.warn('Endpoint not yet built')
-      next()
+    .delete(issue_id_validation, async (req, res, next) => {
+
+      // Check validation and exit early if unsuccessful
+      const idErrors = validationResult(req).array().filter(error => error.param === 'id')
+      if (idErrors.length > 0) {
+        return res.json({
+          success: false,
+          error: '_id error',
+          message: `deletion of ${req.body.id} failed: ${idErrors[0].msg}`
+        })
+      }
+      
+      
+      const id = ObjectId(req.body.id)
+      Issue.findByIdAndRemove(id, (err, doc) => {
+        console.log(err, doc)
+        if (err) {
+          return res.json({
+            success: false,
+            error: 'database error',
+            message: `deletion of ${req.body.id} failed: could not delete ${req.body.id}`
+          })
+        }
+        if (!doc) {
+          return res.json({
+            success: false,
+            error: '_id error',
+            message: `deletion of ${req.body.id} failed: no issue found with the provided issue ID`
+          })
+        }
+        res.json({_id: doc._id, success: true, deleted: true})
+      })
+
+
     })
 
     // ** GET ** request
