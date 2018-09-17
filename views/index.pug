@@ -104,7 +104,7 @@ html
                     div.input-row
                         label(for="delete_id_input") Issue ID
                             span  - Required
-                        input#delete_id_input(type="text" placeholder="5871dda29faedc3491ff93bb" name="id" required value="5871dda29faedc3491ff93bb")
+                        input#delete_id_input(type="text" placeholder="5b9ed42aaac8cfb8d4f0e5b7" name="id" required value="5b9ed42aaac8cfb8d4f0e5b7")
                     button.submit-btn(type="submit") Delete
                 
                     div.input-row
@@ -137,14 +137,14 @@ script.
         fetch('/api/issues/apitest2', {
             method: 'POST',
             headers: {
-            "Content-Type": "application/json; charset=utf-8",
+                "Content-Type": "application/json; charset=utf-8",
             },
             body,
         })
             .then(res => res.json())
             .then(data => {
                 console.log(data)
-                output.textContent = JSON.stringify(data)
+                output.textContent = JSON.stringify(data, null, 2)
                 output.classList.remove('hidden')
             })
     })
@@ -163,10 +163,10 @@ script.
         })
 
         // PUT request to update existing issue
-        fetch('/api/issues/apitest', {
+        fetch('/api/issues/apitest2', {
             method: 'PUT',
             headers: {
-            "Content-Type": "application/json; charset=utf-8",
+                "Content-Type": "application/json; charset=utf-8",
             },
             body,
         })
@@ -178,7 +178,24 @@ script.
             })
     })
     document.getElementById('delete_ticket_form').addEventListener('submit', e => {
+        console.log('deleting' + e.target.id)
         e.preventDefault()
-        const {id} = e.target
         const output = document.getElementById('try_it_delete')
+        const id = e.target.id.value
+
+        // DELETE request to DELETE an issue
+        fetch('/api/issues/apitest2', {
+            method: 'DELETE',
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            body: JSON.stringify({id}),
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                output.textContent = JSON.stringify(data, null, 2)
+                output.classList.remove('hidden')
+            })
+
     })
