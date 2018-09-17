@@ -7,6 +7,9 @@ const issueSchema = new mongoose.Schema({
   createdBy: { type: String, required: true },
   assignedTo: { type: String },
   statusText: { type: String },
+  createdOn: { type: Date, default: Date.now },
+  updatedOn: { type: Date, default: Date.now },
+  open: { type: Boolean, default: true }
 })
 
 const Issue = mongoose.model("Issue", issueSchema, "issues")
