@@ -73,7 +73,7 @@ html
                     div.input-row
                         label(for="id_input") Issue ID
                             span  - Required
-                        input#id_input(type="text" placeholder="5b9c28e7abd4efa3f86d3e40" name="id" /*required*/ value="5871dda29faedc3491ff93bb")
+                        input#id_input(type="text" placeholder="5ba00c058c04ecc8a887e7eb" name="id" /*required*/ value="5ba00c058c04ecc8a887e7eb")
                     div.input-row
                         label(for="title_input") Issue Title
                             span  - Optional
@@ -94,6 +94,9 @@ html
                         label(for="statusText_input") Status Text
                             span  - Optional
                         input#statusText_input(type="text" placeholder="In Dev" name="statusText" value="test statusText")
+                    div.input-row.checkboxes
+                        input#closeIssue_input(type="checkbox" name="closeIssue" value="Close Ticket")
+                        label(for="closeIssue_input") Close Issue?
                     button.submit-btn(type="submit") Update
                     
                     div.input-row
@@ -152,14 +155,16 @@ script.
     document.getElementById('update_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
         const output = document.getElementById('try_it_update')
-        const {id, title, text, createdBy, assignedTo, statusText} = e.target
+        const {id, title, text, createdBy, assignedTo, statusText, closeIssue} = e.target
         const body = JSON.stringify({
             id: id.value,
             title: title.value,
             text: text.value,
             createdBy: createdBy.value,
             assignedTo: assignedTo.value,
-            statusText: statusText.value
+            statusText: statusText.value,
+            closeIssue: closeIssue.checked,
+
         })
 
         // PUT request to update existing issue

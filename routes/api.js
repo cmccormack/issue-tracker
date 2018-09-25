@@ -122,15 +122,39 @@ module.exports = () => {
         return next(Error(idErrors[0].msg))
       }
 
-      const update = {...req.body}
-      const id = ObjectId(req.body.id)
+      const { id, closeIssue, ...update } = req.body
 
       // Strip unchanged properties from body for update
-      Object.keys(update).forEach(param => (!update[param] || param === 'id') && delete update[param])
+      Object.keys(update).forEach(param => update[param] === '' && delete update[param])
 
-      const issue = await Issue.findByIdAndUpdate(id, update, {new: true})
+      if (Object.keys(update).length === 0 && closeIssue === false) {
+        return res.json({
+          success: false,
+          error: 'update error',
+          message: `No updated field sent`
+        })
+      }
 
-      res.json({success: true, issue: issue.toObject()})
+
+      Issue.findByIdAndUpdate(ObjectId(id),
+        {open: !closeIssue, ...update},
+        {new: true},
+        (err, issue) => {
+
+          if (err) { return next(Error(err)) }
+
+          if (!issue) {
+            return res.json({
+              success: false,
+              error: '_id error',
+              message: `Update of ${req.body.id} failed: no issue found with the provided issue ID`
+            })
+          }
+
+          res.json({success: true, issue: issue.toObject()})
+        })
+
+    
 
     })
 
@@ -144,32 +168,31 @@ module.exports = () => {
         return res.json({
           success: false,
           error: '_id error',
-          message: `deletion of ${req.body.id} failed: ${idErrors[0].msg}`
+          message: `Deletion of ${req.body.id} failed: ${idErrors[0].msg}`
         })
       }
-      
-      
+
       const id = ObjectId(req.body.id)
       Issue.findByIdAndRemove(id, (err, doc) => {
-        console.log(err, doc)
+
         if (err) {
           return res.json({
             success: false,
             error: 'database error',
-            message: `deletion of ${req.body.id} failed: could not delete ${req.body.id}`
+            message: `Deletion of ${req.body.id} failed: could not delete ${req.body.id}`
           })
         }
+
         if (!doc) {
           return res.json({
             success: false,
             error: '_id error',
-            message: `deletion of ${req.body.id} failed: no issue found with the provided issue ID`
+            message: `Deletion of ${req.body.id} failed: no issue found with the provided issue ID`
           })
         }
+
         res.json({_id: doc._id, success: true, deleted: true})
       })
-
-
     })
 
     // ** GET ** request
