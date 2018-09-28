@@ -34,7 +34,6 @@ suite('Functional Tests', function() {
           assert.equal(res.body.created_by, 'Functional Test - Every field filled in')
           assert.equal(res.body.assigned_to, 'Chai and Mocha')
           assert.equal(res.body.status_text, 'In QA')
-          
           done();
         });
       });

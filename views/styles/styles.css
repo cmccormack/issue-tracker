@@ -84,7 +84,16 @@ body, html {
     margin: 10px 0;
   }
 
-  input, textarea {
+  .input-row.checkboxes {
+    display: flex;
+  }
+
+  .checkboxes label {
+    line-height: 1.2;
+    font-size: 1rem;
+  }
+
+  input[type="text"], textarea {
     box-sizing: border-box;
     padding: .3rem;
     border: 2px solid black;
