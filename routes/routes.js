@@ -6,17 +6,16 @@ module.exports = (app) => {
   // Testing/Debug Middleware
   ///////////////////////////////////////////////////////////
   app.use((req, res, next) => {
-    const { user = { username: null, }, } = req
     console.debug(`DEBUG originalUrl: ${req.originalUrl}`)
     next()
   })
 
-  const apiRouter = require('./api')()
-
-
+  
+  
   ///////////////////////////////////////////////////////////
   // API
   ///////////////////////////////////////////////////////////
+  const apiRouter = require('./api')()
   app.use("/api", apiRouter)
 
 
@@ -33,12 +32,13 @@ module.exports = (app) => {
 
 
   ///////////////////////////////////////////////////////////
-  // Default Router Handler, Redirects to root
+  // 404 Not Found Handler
   ///////////////////////////////////////////////////////////
-  app.route('*')
-    .get((req, res, next) => {
-      res.redirect('/')
-    })
+  app.use((req, res, next) => {
+    res.status(404)
+    .type('text')
+    .send('Page Not Found');
+  })
 
 
   ///////////////////////////////////////////////////////////

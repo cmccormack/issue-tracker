@@ -19,29 +19,33 @@ module.exports = () => {
     })
   })
 
+
+  ///////////////////////////////////////////////////////////
+  // Validations
+  ///////////////////////////////////////////////////////////
   const issue_form_validation = [
-    body('title')
+    body('issue_title')
       .trim()
       .isLength({ min: 3, })
-      .withMessage('Title should be at least 4 characters')
+      .withMessage('Issue Title should be at least 4 characters')
       .isAscii()
-      .withMessage('Title should include only valid ascii characters'),
+      .withMessage('Issue Title should include only valid ascii characters'),
 
-    body('text')
+    body('issue_text')
       .trim()
       .isLength({ min: 3, })
       .withMessage('Issue Text should be at least 4 characters')
       .isAscii()
       .withMessage('Issue Text should include only valid ascii characters'),
 
-    body('createdBy')
+    body('created_by')
       .trim()
       .isLength({ min: 2, })
       .withMessage('Created By Name should be at least 3 characters')
       .isAscii()
       .withMessage('Created By Name should include only valid ascii characters'),
 
-    body('assignedTo')
+    body('assigned_to')
       .optional({ checkFalsy: true, })
       .trim()
       .isLength({ min: 2, })
@@ -49,7 +53,7 @@ module.exports = () => {
       .isAscii()
       .withMessage('Assigned To Name should include only valid ascii characters'),
 
-    body('statusText')
+    body('status_text')
       .optional({ checkFalsy: true, })
       .trim()
       .isLength({ min: 2, })
@@ -57,15 +61,15 @@ module.exports = () => {
       .isAscii()
       .withMessage('Status Text should include only valid ascii characters'),
 
-    sanitizeBody('title').trim(),
-    sanitizeBody('text').trim(),
-    sanitizeBody('createdBy').trim(),
-    sanitizeBody('assignedTo').trim(),
-    sanitizeBody('statusText').trim(),
+    sanitizeBody('issue_title').trim(),
+    sanitizeBody('issue_text').trim(),
+    sanitizeBody('created_by').trim(),
+    sanitizeBody('assigned_to').trim(),
+    sanitizeBody('status_text').trim(),
   ]
 
   const issue_id_validation = [
-    body('id')
+    body('_id')
       .trim()
       .isLength({ min: 1, })
       .withMessage('Issue ID should be at least 1 character')
@@ -73,37 +77,38 @@ module.exports = () => {
       .withMessage('Issue ID should include only valid ascii characters'),
   ]
 
+
   ///////////////////////////////////////////////////////////
   // Manage Issue Add/Update/Delete
   ///////////////////////////////////////////////////////////
-  router.route('/issues/:project')
+  router.route('/issues/:project_name')
 
     // ** POST ** request
     .post(issue_form_validation, (req, res, next) => {
 
-      // Check validation and exit early if unsuccessful
+      // Check validation and exit early if unsuccessful 
       const errors = validationResult(req)
       if (!errors.isEmpty()) {
         return next(Error(errors.array()[0].msg))
       }
 
-      const { title, text, createdBy, assignedTo, statusText } = req.body
-      const { project } = req.params
+      const { issue_title, issue_text, created_by, assigned_to, status_text } = req.body
+      const { project_name } = req.params
 
       const issue = new Issue({
-        project,
-        title,
-        text,
-        createdBy,
-        assignedTo,
-        statusText
+        project_name,
+        issue_title,
+        issue_text,
+        created_by,
+        assigned_to,
+        status_text
       })
 
       issue.save(err => {
         if (err) { return next(Error(err)) }
 
         console.log('saved!')
-        res.json({success: true, ...req.body, project})
+        res.json({success: true, ...req.body, project_name})
       })
 
     })
@@ -123,7 +128,7 @@ module.exports = () => {
       const id = ObjectId(req.body.id)
 
       // Strip unchanged properties from body for update
-      Object.keys(update).forEach(param => (!update[param] || param === 'id') && delete update[param])
+      Object.keys(update).forEach(param => (!update[param] || param === '_id') && delete update[param])
 
       const issue = await Issue.findByIdAndUpdate(id, update, {new: true})
 
@@ -141,7 +146,7 @@ module.exports = () => {
     // ** GET ** request
     .get((req, res, next) => {
 
-      const {project} = req.params
+      const {project_name} = req.params
       
       Issue.find({project})
       .exec((err, issues) => {

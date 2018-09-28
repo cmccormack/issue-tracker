@@ -126,11 +126,11 @@ script.
         const output = document.getElementById('try_it_new')
         const {title, text, createdBy, assignedTo, statusText} = e.target
         const body = JSON.stringify({
-            title: title.value,
-            text: text.textContent,
-            createdBy: createdBy.value,
-            assignedTo: assignedTo.value,
-            statusText: statusText.value
+            issue_title: title.value,
+            issue_text: text.textContent,
+            created_by: createdBy.value,
+            assigned_to: assignedTo.value,
+            status_text: statusText.value
         })
 
         // POST request to add new issue
@@ -154,19 +154,19 @@ script.
         const output = document.getElementById('try_it_update')
         const {id, title, text, createdBy, assignedTo, statusText} = e.target
         const body = JSON.stringify({
-            id: id.value,
-            title: title.value,
-            text: text.value,
-            createdBy: createdBy.value,
-            assignedTo: assignedTo.value,
-            statusText: statusText.value
+            _id: id.value,
+            issue_title: title.value,
+            issue_text: text.value,
+            created_by: createdBy.value,
+            assigned_to: assignedTo.value,
+            status_text: statusText.value
         })
 
         // PUT request to update existing issue
         fetch('/api/issues/apitest', {
             method: 'PUT',
             headers: {
-            "Content-Type": "application/json; charset=utf-8",
+                "Content-Type": "application/json; charset=utf-8",
             },
             body,
         })

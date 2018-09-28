@@ -4,6 +4,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const mongoose = require('mongoose')
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
+const Issue = require('./models/Issue')
 
 
 ///////////////////////////////////////////////////////////
@@ -24,10 +25,10 @@ db.once('open', () => {
 })
 
 // Testing
-const Issue = require('./models/Issue')
-Issue.find({}, (err, issues) => {
-  console.log(issues)
-})
+
+// Issue.find({}, (err, issues) => {
+//   console.log(issues)
+// })
 
 
 ///////////////////////////////////////////////////////////
@@ -47,8 +48,10 @@ app.set('view engine', 'pug')
 app.use(express.static(path.resolve(__dirname, "views")))
 
 
+
 //For FCC testing purposes
 require('./routes/fcctesting.js')(app)
+const runner = require('./test-runner')
 
 require('./routes/routes.js')(app)
 
@@ -59,4 +62,23 @@ require('./routes/routes.js')(app)
 const server = app.listen(app.get("port"), () => {
     const {port, address, } = server.address()
     console.info(`Express server started on ${address}:${port}`)
+
+    if(process.env.NODE_ENV==='test') {
+      console.log('Running Tests...');
+      setTimeout(async () => {
+        try {
+          await Issue.deleteMany({}, err => {
+            if (err) throw err.message
+            console.log("Successfully wiped 'issues' collection")
+          })
+          runner.run()
+        } catch(e) {
+          const error = e
+            console.log('Tests are not valid:')
+            console.log(error)
+        }
+      }, 1500)
+    }
   })
+
+module.exports = app; //for testing
