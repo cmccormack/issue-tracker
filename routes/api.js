@@ -104,11 +104,13 @@ module.exports = () => {
         status_text
       })
 
-      issue.save(err => {
+      issue.save((err, doc) => {
         if (err) { return next(Error(err)) }
 
-        console.log('saved!')
-        res.json({success: true, ...req.body, project_name})
+        const response = doc.toObject()
+        delete response.__v
+        // console.log('saved!', response)
+        res.json(response)
       })
 
     })
@@ -148,7 +150,7 @@ module.exports = () => {
 
       const {project_name} = req.params
       
-      Issue.find({project})
+      Issue.find({project_name})
       .exec((err, issues) => {
         if (err) { return Error(err.message) }
 
