@@ -124,12 +124,8 @@ module.exports = () => {
     .put(issue_id_validation, issue_form_validation, async (req, res, next) => {
 
       // Exit early if no fields are sent
-      if (Object.keys(req.body).length < 1) {
-        return res.send("no updated field sent")
-      }
-
-      if (!req.body._id) {
-        return res.send(`could not update`)
+      if (!req.body._id || Object.keys(req.body).length <= 1) {
+        return next(Error("no updated field sent"))
       }
   
       // Check validation and exit early if unsuccessful
@@ -171,13 +167,15 @@ module.exports = () => {
     .get((req, res, next) => {
 
       const {project_name} = req.params
+      console.log(req.query)
       
-      Issue.find({project_name}, {'__v': 0})
-      .exec((err, issues) => {
-        if (err) { return Error(err.message) }
-
-        res.json(issues)
-      })
+      Issue
+        .find({project_name, ...req.query}, {'__v': 0})
+        .exec((err, issues) => {
+          if (err) { console.log(err);return Error(err.message) }
+            console.log('issues: ',issues)
+          res.json(issues)
+        })
     })
 
   return router

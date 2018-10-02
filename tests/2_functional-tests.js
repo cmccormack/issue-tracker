@@ -14,6 +14,7 @@ const Issue = require('../models/Issue')
 
 chai.use(chaiHttp);
 
+let id
 suite('Functional Tests', function () {
 
   suite('POST /api/issues/{project} => object with issue data', function () {
@@ -22,7 +23,6 @@ suite('Functional Tests', function () {
       chai.request(server)
         .post('/api/issues/test')
         .send({
-          _id: '111111111111111111111111',
           issue_title: 'Title',
           issue_text: 'text',
           created_by: 'Functional Test - Every field filled in',
@@ -39,6 +39,7 @@ suite('Functional Tests', function () {
           assert.approximately(new Date(res.body.created_on).getTime(), new Date().getTime(), 5000)
           assert.approximately(new Date(res.body.updated_on).getTime(), new Date().getTime(), 5000)
           assert.equal(res.body.open, true)
+          id = res.body._id
           done();
         });
     });
@@ -63,14 +64,11 @@ suite('Functional Tests', function () {
     test('Missing required fields', function (done) {
       chai.request(server)
         .post('/api/issues/test')
-        .send({
-          issue_title: '',
-          issue_text: '',
-          created_by: '',
-        })
+        .send({})
         .end(function (err, res) {
           assert.equal(res.status, 200)
           assert.equal(res.body.success, false)
+          assert.equal(res.body.error, 'Issue Title missing')
           done()
         })
     });
@@ -81,10 +79,14 @@ suite('Functional Tests', function () {
     test('No body', function (done) {
       chai.request(server)
         .put('/api/issues/test')
-        .send({})
+        .send({
+          _id: id
+        })
         .end(function (err, res) {
           assert.equal(res.status, 200)
-          assert.equal(res.text, "no updated field sent")
+          console.log(res.body)
+          assert.equal(res.body.error, "no updated field sent")
+          assert.equal(res.body.success, false)
           done()
         })
     });
@@ -93,7 +95,7 @@ suite('Functional Tests', function () {
       chai.request(server)
         .put('/api/issues/test')
         .send({
-          _id: '111111111111111111111111',
+          _id: id,
           issue_title: 'Updated title'
         })
         .end(function (err, res) {
@@ -107,7 +109,7 @@ suite('Functional Tests', function () {
       chai.request(server)
         .put('/api/issues/test')
         .send({
-          _id: '111111111111111111111111',
+          _id: id,
           issue_title: 'Updated title again',
           issue_text: 'Updated text',
           created_by: 'Updated by me',
@@ -152,7 +154,20 @@ suite('Functional Tests', function () {
     });
 
     test('One filter', function (done) {
-
+      chai.request(server)
+        .get('/api/issues/test?open=false')
+        .query({})
+        .end(function (err, res) {
+          assert.equal(res.status, 200);
+          assert.isArray(res.body);
+          assert.isAtLeast(res.body.length, 1)
+          const body = res.body[0]
+          assert.property(body, '_id');
+          assert.property(body, 'open');
+          assert.isFalse(body.open)
+          assert.equal(body._id, id)
+          done();
+        });
     });
 
     test('Multiple filters (test for multiple fields you know will be in the db for a return)', function (done) {

@@ -24,12 +24,6 @@ db.once('open', () => {
   console.info(`Mongoose default connection opened [${dbname}]`)
 })
 
-// Testing
-
-// Issue.find({}, (err, issues) => {
-//   console.log(issues)
-// })
-
 
 ///////////////////////////////////////////////////////////
 //  Initialize Express and configure Middleware
@@ -72,16 +66,6 @@ const server = app.listen(app.get("port"), () => {
             if (err) throw err.message
             console.log("Successfully wiped 'issues' collection")
           })
-          // Create test issue to test against
-          await new Issue({
-            project_name: 'test',
-            _id: '111111111111111111111111',
-            issue_title: 'Seed Title',
-            issue_text: 'Seed Text',
-            created_by: 'Seed',
-            assigned_to: 'Seeded Test Issue',
-            status_text: 'In Dev'
-          }).save()
           runner.run()
         } catch(e) {
           const error = e
