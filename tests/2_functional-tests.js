@@ -10,6 +10,7 @@ var chaiHttp = require('chai-http');
 var chai = require('chai');
 var assert = chai.assert;
 var server = require('../server');
+const Issue = require('../models/Issue')
 
 chai.use(chaiHttp);
 
@@ -21,6 +22,7 @@ suite('Functional Tests', function () {
       chai.request(server)
         .post('/api/issues/test')
         .send({
+          _id: '111111111111111111111111',
           issue_title: 'Title',
           issue_text: 'text',
           created_by: 'Functional Test - Every field filled in',
@@ -77,15 +79,52 @@ suite('Functional Tests', function () {
   suite('PUT /api/issues/{project} => text', function () {
 
     test('No body', function (done) {
-
+      chai.request(server)
+        .put('/api/issues/test')
+        .send({})
+        .end(function (err, res) {
+          assert.equal(res.status, 200)
+          assert.equal(res.text, "no updated field sent")
+          done()
+        })
     });
 
     test('One field to update', function (done) {
-
+      chai.request(server)
+        .put('/api/issues/test')
+        .send({
+          _id: '111111111111111111111111',
+          issue_title: 'Updated title'
+        })
+        .end(function (err, res) {
+          assert.equal(res.status, 200)
+          assert.equal(res.body.issue_title, 'Updated title')
+          done()
+        })
     });
 
     test('Multiple fields to update', function (done) {
-
+      chai.request(server)
+        .put('/api/issues/test')
+        .send({
+          _id: '111111111111111111111111',
+          issue_title: 'Updated title again',
+          issue_text: 'Updated text',
+          created_by: 'Updated by me',
+          assigned_to: 'Chai and Mocha',
+          status_text: 'In QA',
+          open: false,
+        })
+        .end(function (err, res) {
+          assert.equal(res.status, 200)
+          assert.equal(res.body.issue_title, 'Updated title again')
+          assert.equal(res.body.issue_text, 'Updated text')
+          assert.equal(res.body.created_by, 'Updated by me')
+          assert.equal(res.body.assigned_to, 'Chai and Mocha')
+          assert.equal(res.body.status_text, 'In QA')
+          assert.isFalse(res.body.open)
+          done()
+        })
     });
 
   });
