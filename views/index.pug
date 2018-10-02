@@ -94,6 +94,9 @@ html
                         label(for="statusText_input") Status Text
                             span  - Optional
                         input#statusText_input(type="text" placeholder="In Dev" name="statusText" value="test statusText")
+                    div.input-row.checkboxes
+                        input#closeIssue_input(type="checkbox" name="closeIssue" value="Close Ticket")
+                        label(for="closeIssue_input") Close Issue?
                     button.submit-btn(type="submit") Update
                     
                     div.input-row
@@ -152,14 +155,15 @@ script.
     document.getElementById('update_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
         const output = document.getElementById('try_it_update')
-        const {id, title, text, createdBy, assignedTo, statusText} = e.target
+        const {id, title, text, createdBy, assignedTo, statusText, closeIssue} = e.target
         const body = JSON.stringify({
             _id: id.value,
             issue_title: title.value,
             issue_text: text.value,
             created_by: createdBy.value,
             assigned_to: assignedTo.value,
-            status_text: statusText.value
+            status_text: statusText.value,
+            open: !closeIssue.checked,
         })
 
         // PUT request to update existing issue
