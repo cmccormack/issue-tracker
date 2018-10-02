@@ -26,29 +26,33 @@ module.exports = () => {
   const issue_form_validation = [
     body('issue_title')
       .trim()
+      .isLength({ min: 1, })
+      .withMessage('Issue Title missing')
       .isLength({ min: 3, })
-      .withMessage('Issue Title should be at least 4 characters')
+      .withMessage('Issue Title should be at least 3 characters')
       .isAscii()
       .withMessage('Issue Title should include only valid ascii characters'),
 
     body('issue_text')
       .trim()
+      .isLength({ min: 1, })
+      .withMessage('Issue Text missing')
       .isLength({ min: 3, })
-      .withMessage('Issue Text should be at least 4 characters')
+      .withMessage('Issue Text should be at least 3 characters')
       .isAscii()
       .withMessage('Issue Text should include only valid ascii characters'),
 
     body('created_by')
       .trim()
-      .isLength({ min: 2, })
-      .withMessage('Created By Name should be at least 3 characters')
+      .isLength({ min: 1, })
+      .withMessage('Issue Title missing')
       .isAscii()
       .withMessage('Created By Name should include only valid ascii characters'),
 
     body('assigned_to')
       .optional({ checkFalsy: true, })
       .trim()
-      .isLength({ min: 2, })
+      .isLength({ min: 3, })
       .withMessage('Assigned To Name should be at least 3 characters')
       .isAscii()
       .withMessage('Assigned To Name should include only valid ascii characters'),
@@ -57,7 +61,7 @@ module.exports = () => {
       .optional({ checkFalsy: true, })
       .trim()
       .isLength({ min: 2, })
-      .withMessage('Status Text should be at least 3 characters')
+      .withMessage('Status Text should be at least 2 characters')
       .isAscii()
       .withMessage('Status Text should include only valid ascii characters'),
 
@@ -72,9 +76,11 @@ module.exports = () => {
     body('_id')
       .trim()
       .isLength({ min: 1, })
-      .withMessage('Issue ID should be at least 1 character')
+      .withMessage('Issue ID missing')
       .isAscii()
-      .withMessage('Issue ID should include only valid ascii characters'),
+      .withMessage('Issue ID should include only valid ascii characters')
+      .isMongoId()
+      .withMessage('Issue ID is not a valid MongoID'),
   ]
 
 
@@ -107,9 +113,7 @@ module.exports = () => {
       issue.save((err, doc) => {
         if (err) { return next(Error(err)) }
 
-        const response = doc.toObject()
-        delete response.__v
-        // console.log('saved!', response)
+        const response = doc.toObject({ versionKey: false })
         res.json(response)
       })
 
@@ -119,22 +123,40 @@ module.exports = () => {
     // ** PUT ** request
     .put(issue_id_validation, issue_form_validation, async (req, res, next) => {
 
+      // Exit early if no fields are sent
+      if (Object.keys(req.body).length < 1) {
+        return res.send("no updated field sent")
+      }
+
+      if (!req.body._id) {
+        return res.send(`could not update`)
+      }
+  
       // Check validation and exit early if unsuccessful
-      const idErrors = validationResult(req).array().filter(error => error.param === 'id')
+      const idErrors = validationResult(req).array().filter(error => error.param === '_id')
       if (idErrors.length > 0) {
-        console.log(idErrors)
-        return next(Error(idErrors[0].msg))
+        return res.send(`could not update ${req.body._id}`)
       }
 
       const update = {...req.body}
-      const id = ObjectId(req.body.id)
+      const id = ObjectId(req.body._id)
 
       // Strip unchanged properties from body for update
-      Object.keys(update).forEach(param => (!update[param] || param === '_id') && delete update[param])
+      Object.keys(update).forEach(param => {
+        param === '_id' && delete update[param]
+        param === '' && delete update[param]
+      })
 
+      // Update the timestamp on the issue
+      update.updated_on = Date.now()
+
+      // Find issue and update, return error if _id not found
       const issue = await Issue.findByIdAndUpdate(id, update, {new: true})
+      if (!issue) {
+        return next(Error(`could not update ${req.body._id}`))
+      }
 
-      res.json({success: true, issue: issue.toObject()})
+      res.json(issue.toObject({ versionKey: false }))
 
     })
 
@@ -150,7 +172,7 @@ module.exports = () => {
 
       const {project_name} = req.params
       
-      Issue.find({project_name})
+      Issue.find({project_name}, {'__v': 0})
       .exec((err, issues) => {
         if (err) { return Error(err.message) }
 
