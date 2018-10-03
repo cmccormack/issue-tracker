@@ -155,23 +155,35 @@ suite('Functional Tests', function () {
 
     test('One filter', function (done) {
       chai.request(server)
-        .get('/api/issues/test?open=false')
-        .query({})
+        .get('/api/issues/test')
+        .query({open: false})
         .end(function (err, res) {
           assert.equal(res.status, 200);
           assert.isArray(res.body);
           assert.isAtLeast(res.body.length, 1)
-          const body = res.body[0]
-          assert.property(body, '_id');
-          assert.property(body, 'open');
-          assert.isFalse(body.open)
-          assert.equal(body._id, id)
+          assert.property(res.body[0], '_id');
+          assert.property(res.body[0], 'open');
+          assert.isFalse(res.body[0].open)
+          assert.equal(res.body[0]._id, id)
           done();
         });
     });
 
     test('Multiple filters (test for multiple fields you know will be in the db for a return)', function (done) {
-
+      chai.request(server)
+        .get('/api/issues/test')
+        .query({
+          issue_title: 'Updated title again',
+          created_by: 'Functional Test - Required fields filled in',
+        })
+        .end(function (err, res) {
+          assert.equal(res.status, 200);
+          assert.isArray(res.body);
+          assert.equal(res.body.length, 2)
+          assert.equal(res.body[0].issue_title, 'Updated title again')
+          assert.equal(res.body[1].created_by, 'Functional Test - Required fields filled in')
+          done();
+        });
     });
 
   });

@@ -167,15 +167,20 @@ module.exports = () => {
     .get((req, res, next) => {
 
       const {project_name} = req.params
-      console.log(req.query)
-      
-      Issue
-        .find({project_name, ...req.query}, {'__v': 0})
-        .exec((err, issues) => {
-          if (err) { console.log(err);return Error(err.message) }
-            console.log('issues: ',issues)
-          res.json(issues)
-        })
+      const query = { project_name }
+      const queryArr = Object.keys(req.query).map(q => ({ [q]: req.query[q] }))
+
+      // Convert query to array of query objects if filter query exists
+      if (queryArr.length > 0) {
+        query.$or = queryArr
+      }
+      Issue.find(query, {'__v': 0}, (err, issues) => {
+        if (err) { 
+          return Error(err.message)
+        }
+
+        res.json(issues)
+      })
     })
 
   return router
