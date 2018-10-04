@@ -158,27 +158,35 @@ module.exports = () => {
 
 
     // ** DELETE ** request
-    .delete((req, res, next) => {
-      console.warn('Endpoint not yet built')
-      next()
+    .delete(issue_id_validation, (req, res, next) => {
+      if (!req.body._id) {
+        return next(Error('_id error'))
+      }
+
+      if (!validationResult(req).isEmpty()) {
+        return next(Error(`could not delete ${req.body._id}`))
+      }
+
+      Issue.findOneAndRemove({_id: req.body._id}, (err, issue) => {
+
+        if (err || !issue) {
+          return next(Error(`could not delete ${req.body._id}`))
+        }
+
+        res.send(`deleted ${req.body._id}`)
+      })
     })
 
     // ** GET ** request
     .get((req, res, next) => {
 
       const {project_name} = req.params
-      const query = { project_name }
-      const queryArr = Object.keys(req.query).map(q => ({ [q]: req.query[q] }))
 
-      // Convert query to array of query objects if filter query exists
-      if (queryArr.length > 0) {
-        query.$or = queryArr
-      }
+      const query = { project_name, ...req.query }
       Issue.find(query, {'__v': 0}, (err, issues) => {
         if (err) { 
           return Error(err.message)
         }
-
         res.json(issues)
       })
     })

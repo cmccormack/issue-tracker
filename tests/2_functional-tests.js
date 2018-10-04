@@ -173,29 +173,54 @@ suite('Functional Tests', function () {
       chai.request(server)
         .get('/api/issues/test')
         .query({
-          issue_title: 'Updated title again',
+          project_name: 'test',
           created_by: 'Functional Test - Required fields filled in',
         })
         .end(function (err, res) {
           assert.equal(res.status, 200);
           assert.isArray(res.body);
-          assert.equal(res.body.length, 2)
-          assert.equal(res.body[0].issue_title, 'Updated title again')
-          assert.equal(res.body[1].created_by, 'Functional Test - Required fields filled in')
+          assert.equal(res.body.length, 1)
+          assert.equal(res.body[0].issue_title, 'Title')
           done();
         });
     });
-
   });
 
   suite('DELETE /api/issues/{project} => text', function () {
 
     test('No _id', function (done) {
-
+      chai.request(server)
+        .delete('/api/issues/test')
+        .send({})
+        .end(function (err, res) {
+          assert.equal(res.status, 200)
+          assert.isFalse(res.body.success)
+          assert.equal(res.body.error, '_id error')
+          done()
+        })
     });
 
-    test('Valid _id', function (done) {
+    test('Invalid _id', function (done) {
+      chai.request(server)
+        .delete('/api/issues/test')
+        .send({ _id: 1234 })
+        .end(function (err, res) {
+          assert.equal(res.status, 200)
+          assert.isFalse(res.body.success)
+          assert.equal(res.body.error, 'could not delete 1234')
+          done()
+        })
+    })
 
+    test('Valid _id', function (done) {
+      chai.request(server)
+        .delete('/api/issues/test')
+        .send({_id: id})
+        .end(function (err, res) {
+          assert.equal(res.status, 200)
+          assert.equal(res.text, `deleted ${id}`)
+          done()
+        })
     });
 
   });
