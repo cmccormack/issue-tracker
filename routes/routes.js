@@ -45,7 +45,7 @@ module.exports = (app) => {
   // Error Handler
   ///////////////////////////////////////////////////////////
   app.use((err, req, res, next) => {
-    console.error(err.message)
+    // console.error(err.message)
 
     res.send({success: false, error: err.message})
   })

@@ -46,23 +46,23 @@ html
                     div.input-row
                         label(for="title_input") Issue Title
                             span  - Required
-                        input#title_input(type="text" placeholder="Fix error in posting data" name="title" required value="test name")
+                        input#title_input(type="text" placeholder="Fix error in posting data" name="title" required)
                     div.input-row
                         label(for="text_input") Issue Text
                             span  - Required
-                        textarea#text_input(rows=3 placeholder="When we post data it has an error and ..." name="text" required) test text
+                        textarea#text_input(rows=3 placeholder="When we post data it has an error and ..." name="text" required)
                     div.input-row
                         label(for="createdBy_input") Created By
                             span  - Required
-                        input#createdBy_input(type="text" placeholder="Chris" name="createdBy" required value="test createdBy")
+                        input#createdBy_input(type="text" placeholder="Chris" name="createdBy" required)
                     div.input-row
                         label(for="assignedTo_input") Assigned To
                             span  - Optional
-                        input#assignedTo_input(type="text" placeholder="Jason" name="assignedTo" value="test assignedTo")
+                        input#assignedTo_input(type="text" placeholder="Jason" name="assignedTo")
                     div.input-row
                         label(for="statusText_input") Status Text
                             span  - Optional
-                        input#statusText_input(type="text" placeholder="In Dev" name="statusText" value="test statusText")
+                        input#statusText_input(type="text" placeholder="In Dev" name="statusText")
                     button.submit-btn(type="submit") Add
                     
                     div.input-row
@@ -73,27 +73,27 @@ html
                     div.input-row
                         label(for="id_input") Issue ID
                             span  - Required
-                        input#id_input(type="text" placeholder="5871dda29faedc3491ff93bb" name="id" /*required*/ value="5871dda29faedc3491ff93bb")
+                        input#id_input(type="text" placeholder="5871dda29faedc3491ff93bb" name="id" required)
                     div.input-row
                         label(for="title_input") Issue Title
                             span  - Optional
-                        input#title_input(type="text" placeholder="Fix error in posting data" name="title" value="test name")
+                        input#title_input(type="text" placeholder="Fix error in posting data" name="title")
                     div.input-row
                         label(for="text_input") Issue Text
                             span  - Optional
-                        textarea#text_input(rows=3 placeholder="When we post data it has an error and ..." name="text") test text
+                        textarea#text_input(rows=3 placeholder="When we post data it has an error and ..." name="text")
                     div.input-row
                         label(for="createdBy_input") Created By
                             span  - Optional
-                        input#createdBy_input(type="text" placeholder="Chris" name="createdBy" value="test createdBy")
+                        input#createdBy_input(type="text" placeholder="Chris" name="createdBy")
                     div.input-row
                         label(for="assignedTo_input") Assigned To
                             span  - Optional
-                        input#assignedTo_input(type="text" placeholder="Jason" name="assignedTo" value="test assignedTo")
+                        input#assignedTo_input(type="text" placeholder="Jason" name="assignedTo")
                     div.input-row
                         label(for="statusText_input") Status Text
                             span  - Optional
-                        input#statusText_input(type="text" placeholder="In Dev" name="statusText" value="test statusText")
+                        input#statusText_input(type="text" placeholder="In Dev" name="statusText")
                     div.input-row.checkboxes
                         input#closeIssue_input(type="checkbox" name="closeIssue" value="Close Ticket")
                         label(for="closeIssue_input") Close Issue?
@@ -130,7 +130,7 @@ script.
         output.classList.remove('hidden')
     }
 
-    const fetchJSON = (endpoint, method, body) => (
+    const fetchJSON = (endpoint, method, body=undefined) => (
         fetch(endpoint, {
             method,
             headers: { "Content-Type": "application/json; charset=utf-8" },
@@ -148,26 +148,25 @@ script.
 
     document.getElementById('new_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
-        const output = document.getElementById('try_it_new')
         const {title, text, createdBy, assignedTo, statusText} = e.target
         const endpoint = e.target.getAttribute('action')
+        const output = document.getElementById('try_it_new')
         const body = {
             issue_title: title.value,
-            issue_text: text.textContent,
+            issue_text: text.value,
             created_by: createdBy.value,
             assigned_to: assignedTo.value,
             status_text: statusText.value
         }
 
-        // POST request to add new issue
         fetchJSON(endpoint, 'POST', body).then(displayResponse.bind(null, output))
     })
 
     document.getElementById('update_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
-        const output = document.getElementById('try_it_update')
         const {id, title, text, createdBy, assignedTo, statusText, closeIssue} = e.target
         const endpoint = e.target.getAttribute('action')
+        const output = document.getElementById('try_it_update')
         const body = {
             _id: id.value,
             issue_title: title.value,
@@ -178,17 +177,15 @@ script.
             open: !closeIssue.checked,
         }
 
-        // PUT request to update existing issue
         fetchJSON(endpoint, 'PUT', body).then(displayResponse.bind(null, output))
     })
 
     document.getElementById('delete_ticket_form').addEventListener('submit', e => {
         e.preventDefault()
         const {id} = e.target
-        const output = document.getElementById('try_it_delete')
         const endpoint = e.target.getAttribute('action')
+        const output = document.getElementById('try_it_delete')
         const body = { _id: id.value }
 
-        // DELETE request to delete existing issue
         fetchJSON(endpoint, 'DELETE', body).then(displayResponse.bind(null, output))
     })

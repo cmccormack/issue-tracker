@@ -84,7 +84,6 @@ suite('Functional Tests', function () {
         })
         .end(function (err, res) {
           assert.equal(res.status, 200)
-          console.log(res.body)
           assert.equal(res.body.error, "no updated field sent")
           assert.equal(res.body.success, false)
           done()
@@ -101,6 +100,10 @@ suite('Functional Tests', function () {
         .end(function (err, res) {
           assert.equal(res.status, 200)
           assert.equal(res.body.issue_title, 'Updated title')
+          assert.equal(res.body.issue_text, 'text')
+          assert.equal(res.body.created_by, 'Functional Test - Every field filled in')
+          assert.equal(res.body.assigned_to, 'Chai and Mocha')
+          assert.equal(res.body.status_text, 'In QA')
           done()
         })
     });

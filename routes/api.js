@@ -134,22 +134,20 @@ module.exports = () => {
         return res.send(`could not update ${req.body._id}`)
       }
 
-      const update = {...req.body}
-      const id = ObjectId(req.body._id)
+      const { _id, ...update } = req.body
 
       // Strip unchanged properties from body for update
       Object.keys(update).forEach(param => {
-        param === '_id' && delete update[param]
-        param === '' && delete update[param]
+        update[param] === '' && delete update[param]
       })
 
       // Update the timestamp on the issue
       update.updated_on = Date.now()
 
       // Find issue and update, return error if _id not found
-      const issue = await Issue.findByIdAndUpdate(id, update, {new: true})
+      const issue = await Issue.findByIdAndUpdate(_id, update, {new: true})
       if (!issue) {
-        return next(Error(`could not update ${req.body._id}`))
+        return next(Error(`could not update ${_id}`))
       }
 
       res.json(issue.toObject({ versionKey: false }))
